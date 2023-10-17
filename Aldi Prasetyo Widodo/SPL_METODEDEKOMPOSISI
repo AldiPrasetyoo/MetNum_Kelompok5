@@ -1,0 +1,48 @@
+import numpy as np
+
+def dekomposisi_spl(A, b):
+    n = len(A)
+    L = np.zeros((n, n))
+    U = np.zeros((n, n))
+    y = np.zeros(n)
+    x = np.zeros(n)
+
+    for i in range(n):
+        # Mengisi diagonal L dengan 1
+        L[i][i] = 1
+        
+        # Menghitung U dan L
+        for j in range(i, n):
+            U[i][j] = A[i][j]
+            for k in range(i):
+                U[i][j] -= L[i][k] * U[k][j]
+                
+        for j in range(i + 1, n):
+            L[j][i] = A[j][i]
+            for k in range(i):
+                L[j][i] -= L[j][k] * U[k][i]
+            L[j][i] /= U[i][i]
+            
+        # Menghitung y
+        y[i] = b[i]
+        for j in range(i):
+            y[i] -= L[i][j] * y[j]
+        y[i] /= L[i][i]
+
+    # Menghitung x (solusi)
+    for i in range(n - 1, -1, -1):
+        x[i] = y[i]
+        for j in range(i + 1, n):
+            x[i] -= U[i][j] * x[j]
+        x[i] /= U[i][i]
+
+    return y, x, L, U
+
+# Input dan Output
+A = np.array([[2, 1, -1], [3, 2, 1], [1, 1, 1]])
+b = np.array([8, 14, 4])
+y, x, L, U = dekomposisi_spl(A, b)
+print("Nilai y:", y)
+print("Nilai x:", x)
+print("Matriks L:", L)
+print("Matriks U:", U)
