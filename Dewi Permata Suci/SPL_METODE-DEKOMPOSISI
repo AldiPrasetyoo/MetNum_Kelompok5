@@ -1,0 +1,78 @@
+import numpy as np
+
+def decompose_LU(A):
+    n = len(A)
+    L = np.zeros((n, n))
+    U = np.zeros((n, n))
+
+    for i in range(n):
+        # Upper triangular matrix
+        for k in range(i, n):
+            sum = 0
+            for j in range(i):
+                sum += (L[i][j] * U[j][k])
+            U[i][k] = A[i][k] - sum
+
+        # Lower triangular matrix
+        for k in range(i, n):
+            if i == k:
+                L[i][i] = 1  # Diagonal elements are 1
+            else:
+                sum = 0
+                for j in range(i):
+                    sum += (L[k][j] * U[j][i])
+                L[k][i] = (A[k][i] - sum) / U[i][i]
+
+    return L, U
+
+def forward_substitution(L, b):
+    n = len(b)
+    y = np.zeros(n)
+    for i in range(n):
+        y[i] = b[i]
+        for j in range(i):
+            y[i] -= L[i][j] * y[j]
+    return y
+
+def backward_substitution(U, y):
+    n = len(y)
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = y[i]
+        for j in range(i + 1, n):
+            x[i] -= U[i][j] * x[j]
+        x[i] /= U[i][i]
+    return x
+
+# Meminta input dari pengguna untuk matriks A
+n = int(input("Masukkan ukuran matriks A (sebagai matriks persegi, contoh: 3 untuk matriks 3x3): "))
+print("Masukkan elemen-elemen matriks A:")
+A = np.zeros((n, n))
+for i in range(n):
+    for j in range(n):
+        A[i][j] = float(input(f"Masukkan elemen A[{i+1}][{j+1}]: "))
+
+# Meminta input dari pengguna untuk vektor b
+print("Masukkan elemen-elemen vektor b:")
+b = np.zeros(n)
+for i in range(n):
+    b[i] = float(input(f"Masukkan elemen b[{i+1}]: "))
+
+# Memanggil fungsi dekomposisi LU
+L, U = decompose_LU(A)
+
+# Menghitung vektor y menggunakan substitusi maju
+y = forward_substitution(L, b)
+
+# Menghitung vektor x menggunakan substitusi mundur
+x = backward_substitution(U, y)
+
+# Output hasil
+print("Matriks L:")
+print(L)
+print("Matriks U:")
+print(U)
+print("Vektor y:")
+print(y)
+print("Vektor x:")
+print(x)
